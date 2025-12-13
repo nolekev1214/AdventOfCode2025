@@ -7,7 +7,7 @@ const Dial = struct {
 
 fn dial_rotate_right(dial: *Dial, rotation: i32) void {
     dial.pointer += rotation;
-    if (dial.pointer >= 100) {
+    while (dial.pointer >= 100) {
         dial.pointer -= 100;
     }
     if (dial.pointer == 0) {
@@ -17,7 +17,7 @@ fn dial_rotate_right(dial: *Dial, rotation: i32) void {
 
 fn dial_rotate_left(dial: *Dial, rotation: i32) void {
     dial.pointer -= rotation;
-    if (dial.pointer < 0) {
+    while (dial.pointer < 0) {
         dial.pointer += 100;
     }
     if (dial.pointer == 0) {
