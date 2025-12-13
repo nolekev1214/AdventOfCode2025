@@ -1,27 +1,114 @@
 const std = @import("std");
-const day1 = @import("day1");
+
+const Dial = struct {
+    pointer: i32,
+    counter: i32,
+};
+
+fn dial_rotate_right(dial: *Dial, rotation: i32) void {
+    dial.pointer += rotation;
+    if (dial.pointer >= 100) {
+        dial.pointer -= 100;
+    }
+    if (dial.pointer == 0) {
+        dial.counter += 1;
+    }
+}
+
+fn dial_rotate_left(dial: *Dial, rotation: i32) void {
+    dial.pointer -= rotation;
+    if (dial.pointer < 0) {
+        dial.pointer += 100;
+    }
+    if (dial.pointer == 0) {
+        dial.counter += 1;
+    }
+}
+
+fn dial_rotate(dial: *Dial, str: []const u8) !void {
+    const rotation = try std.fmt.parseInt(i32, str[1..], 10);
+
+    if (str[0] == 'L') {
+        dial_rotate_left(dial, rotation);
+    } else if (str[0] == 'R') {
+        dial_rotate_right(dial, rotation);
+    }
+}
 
 pub fn main() !void {
-    // Prints to stderr, ignoring potential errors.
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
-    try day1.bufferedPrint();
+    const file = try std.fs.cwd().openFile("input.txt", .{ .mode = .read_only });
+    defer file.close();
+
+    var buf: [1024]u8 = undefined;
+    var reader = file.reader(&buf);
+
+    var dial = Dial{ .counter = 0, .pointer = 50 };
+    while (try reader.interface.takeDelimiter('\n')) |line| {
+        std.debug.print("Line: {s}\n", .{line});
+        try dial_rotate(&dial, line);
+        std.debug.print("Dial {}\n", .{dial});
+    }
 }
 
-test "simple test" {
-    const gpa = std.testing.allocator;
-    var list: std.ArrayList(i32) = .empty;
-    defer list.deinit(gpa); // Try commenting this out and see if zig detects the memory leak!
-    try list.append(gpa, 42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
+test "dial_rotate_right_without_counter_increment" {
+    // Arrange
+    var dial = Dial{ .pointer = 50, .counter = 0 };
+
+    // Act
+    dial_rotate_right(&dial, 23);
+
+    // Assert
+    try std.testing.expectEqual(73, dial.pointer);
 }
 
-test "fuzz example" {
-    const Context = struct {
-        fn testOne(context: @This(), input: []const u8) anyerror!void {
-            _ = context;
-            // Try passing `--fuzz` to `zig build test` and see if it manages to fail this test case!
-            try std.testing.expect(!std.mem.eql(u8, "canyoufindme", input));
-        }
-    };
-    try std.testing.fuzz(Context{}, Context.testOne, .{});
+test "dial_rotate_right_with_counter_increment" {
+    // Arrange
+    var dial = Dial{ .pointer = 50, .counter = 0 };
+
+    // Act
+    dial_rotate_right(&dial, 50);
+
+    // Assert
+    try std.testing.expectEqual(Dial{ .pointer = 0, .counter = 1 }, dial);
+}
+
+test "dial_rotate_left_without_counter_increment" {
+    // Arrange
+    var dial = Dial{ .pointer = 50, .counter = 0 };
+
+    // Act
+    dial_rotate_left(&dial, 23);
+
+    // Assert
+    try std.testing.expectEqual(27, dial.pointer);
+}
+
+test "dial_rotate_left_with_counter_increment" {
+    // Arrange
+    var dial = Dial{ .pointer = 50, .counter = 0 };
+
+    // Act
+    dial_rotate_left(&dial, 50);
+
+    // Assert
+    try std.testing.expectEqual(Dial{ .pointer = 0, .counter = 1 }, dial);
+}
+
+test "integration_manual_dial_moves_match_example" {
+    // Arrange
+    var dial = Dial{ .pointer = 50, .counter = 0 };
+
+    // Act & Assert
+    try dial_rotate(&dial, "L68");
+    try dial_rotate(&dial, "L30");
+    try dial_rotate(&dial, "R48");
+    try dial_rotate(&dial, "L5");
+    try dial_rotate(&dial, "R60");
+    try dial_rotate(&dial, "L55");
+    try dial_rotate(&dial, "L1");
+    try dial_rotate(&dial, "L99");
+    try dial_rotate(&dial, "R14");
+    try dial_rotate(&dial, "L82");
+
+    try std.testing.expectEqual(3, dial.counter);
 }
