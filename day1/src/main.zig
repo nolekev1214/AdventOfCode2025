@@ -100,15 +100,23 @@ test "integration_manual_dial_moves_match_example" {
 
     // Act & Assert
     try dial_rotate(&dial, "L68");
+    try std.testing.expectEqual(Dial{ .counter = 0, .pointer = 82 }, dial);
     try dial_rotate(&dial, "L30");
+    try std.testing.expectEqual(Dial{ .counter = 0, .pointer = 52 }, dial);
     try dial_rotate(&dial, "R48");
+    try std.testing.expectEqual(Dial{ .counter = 1, .pointer = 0 }, dial);
     try dial_rotate(&dial, "L5");
+    try std.testing.expectEqual(Dial{ .counter = 1, .pointer = 95 }, dial);
     try dial_rotate(&dial, "R60");
+    try std.testing.expectEqual(Dial{ .counter = 1, .pointer = 55 }, dial);
     try dial_rotate(&dial, "L55");
+    try std.testing.expectEqual(Dial{ .counter = 2, .pointer = 0 }, dial);
     try dial_rotate(&dial, "L1");
+    try std.testing.expectEqual(Dial{ .counter = 2, .pointer = 99 }, dial);
     try dial_rotate(&dial, "L99");
+    try std.testing.expectEqual(Dial{ .counter = 3, .pointer = 0 }, dial);
     try dial_rotate(&dial, "R14");
+    try std.testing.expectEqual(Dial{ .counter = 3, .pointer = 14 }, dial);
     try dial_rotate(&dial, "L82");
-
-    try std.testing.expectEqual(3, dial.counter);
+    try std.testing.expectEqual(Dial{ .counter = 3, .pointer = 32 }, dial);
 }
