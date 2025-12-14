@@ -11,7 +11,7 @@ pub fn main() !void {
     var buf: [2048]u8 = undefined;
     var reader = file.reader(&buf);
 
-    var fresh = try std.ArrayList([]const u8).initCapacity(allocator, 99999);
+    var fresh = try std.ArrayList([]const u8).initCapacity(allocator, 2048);
     defer fresh.deinit(allocator);
 
     var ids = try std.ArrayList(u64).initCapacity(allocator, 2048);
@@ -24,13 +24,15 @@ pub fn main() !void {
             continue;
         }
         if (fresh_flag) {
-            try fresh.append(allocator, line);
-            std.debug.print("\nFresh Line: {s}\n", .{line});
+            const dup = try allocator.dupe(u8, line);
+            try fresh.append(allocator, dup);
+            std.debug.print("\nFresh Line: {s}\n", .{dup});
             for (fresh.items) |value| {
                 std.debug.print("Fresh Values: {s}\n", .{value});
             }
         } else {
-            try ids.append(allocator, try std.fmt.parseInt(u64, line, 10));
+            const dup = try allocator.dupe(u8, line);
+            try ids.append(allocator, try std.fmt.parseInt(u64, dup, 10));
         }
     }
     var fresh_ids = try fresh_array_to_set(fresh, allocator);
@@ -61,6 +63,7 @@ fn fresh_array_to_set(arr: std.ArrayList([]const u8), allocator: std.mem.Allocat
         const end = try std.fmt.parseInt(u64, end_str, 10);
 
         for (begin..end + 1) |fresh_id| {
+            std.debug.print("Adding Fresh Id: {}\n", .{fresh_id});
             try out.put(fresh_id, {});
         }
     }
