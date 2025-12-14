@@ -25,7 +25,10 @@ pub fn main() !void {
         }
         if (fresh_flag) {
             try fresh.append(allocator, line);
-            std.debug.print("Fresh Line: {s}\n", .{line});
+            std.debug.print("\nFresh Line: {s}\n", .{line});
+            for (fresh.items) |value| {
+                std.debug.print("Fresh Values: {s}\n", .{value});
+            }
         } else {
             try ids.append(allocator, try std.fmt.parseInt(u64, line, 10));
         }
@@ -47,12 +50,6 @@ fn fresh_array_to_set(arr: std.ArrayList([]const u8), allocator: std.mem.Allocat
     var out = std.HashMap(u64, void, std.hash_map.AutoContext(u64), 80).init(allocator);
 
     for (arr.items) |value| {
-        std.debug.print("Fresh Line to Process: {s}\n", .{value});
-    }
-
-    for (arr.items) |value| {
-        std.debug.print("Fresh Line to Process: {s}\n", .{value});
-
         var it = std.mem.tokenizeAny(u8, value, "-");
 
         const begin_str = it.next().?;
