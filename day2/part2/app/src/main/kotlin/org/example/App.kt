@@ -3,17 +3,48 @@
  */
 package org.example
 
-class App {
-    val greeting: String
-        get() {
-            return "Hello World!"
-        }
-}
+import java.io.File
+import java.math.BigInteger
 
 fun main() {
-    println(App().greeting)
+    val answer =
+        File("input.txt")
+            .readText()
+            .split(",")
+            .map { rangeFromString(it) }
+            .flatMap { enumerateValuesFromPair(it) }
+            .filter { !isValidId(it) }
+            .map{ it.toBigInteger()}
+            .reduce(BigInteger::add)
+    println(answer)
 }
 
-fun add(a: Int, b: Int): Int {
-    return a + b;
+fun rangeFromString(s: String): Pair<Long, Long> {
+    val parts = s.split("-").map { it.trim() }
+    return Pair(parts[0].toLong(), parts[1].toLong())
+}
+
+fun enumerateValuesFromPair(pair: Pair<Long, Long>): List<Long> {
+    return (pair.first..pair.second).toList()
+}
+
+fun isValidId(id: Long): Boolean {
+    var valid = true
+    val idStr = id.toString()
+    var i = idStr.length / 2
+    while (i > 0 && valid) {
+        if (idStr.length % i != 0) {
+            i -= 1
+            continue
+        }
+        val subStr = idStr.substring(0, i)
+        val testStr = subStr.repeat(idStr.length / i)
+        if (testStr == idStr) {
+            valid = false
+        }
+
+        i -= 1
+    }
+
+    return valid
 }
