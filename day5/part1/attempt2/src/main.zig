@@ -8,10 +8,10 @@ pub fn main() !void {
     const file = try std.fs.cwd().openFile("input.txt", .{ .mode = .read_only });
     defer file.close();
 
-    var buf: [1024]u8 = undefined;
+    var buf: [2048]u8 = undefined;
     var reader = file.reader(&buf);
 
-    var fresh = try std.ArrayList([]const u8).initCapacity(allocator, 2048);
+    var fresh = try std.ArrayList([]const u8).initCapacity(allocator, 99999);
     defer fresh.deinit(allocator);
 
     var ids = try std.ArrayList(u64).initCapacity(allocator, 2048);
@@ -48,13 +48,17 @@ fn fresh_array_to_set(arr: std.ArrayList([]const u8), allocator: std.mem.Allocat
 
     for (arr.items) |value| {
         std.debug.print("Fresh Line to Process: {s}\n", .{value});
+    }
+
+    for (arr.items) |value| {
+        std.debug.print("Fresh Line to Process: {s}\n", .{value});
 
         var it = std.mem.tokenizeAny(u8, value, "-");
 
         const begin_str = it.next().?;
-        std.debug.print("Begin: {s}", .{begin_str});
+        std.debug.print("Begin: {s} ", .{begin_str});
         const end_str = it.next().?;
-        std.debug.print("End: {s}", .{end_str});
+        std.debug.print("End: {s}\n", .{end_str});
 
         const begin = try std.fmt.parseInt(u64, begin_str, 10);
         const end = try std.fmt.parseInt(u64, end_str, 10);
