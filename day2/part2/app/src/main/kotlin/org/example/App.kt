@@ -11,6 +11,7 @@ fun main() {
         File("input.txt")
             .readText()
             .split(",")
+            .asSequence()
             .map { rangeFromString(it) }
             .flatMap { enumerateValuesFromPair(it) }
             .filter { !isValidId(it) }
