@@ -11,6 +11,7 @@ fun main() {
         File("input.txt")
             .readText()
             .split(",")
+            .asSequence()
             .map { rangeFromString(it) }
             .flatMap { enumerateValuesFromPair(it) }
             .filter { !isValidId(it) }
@@ -33,16 +34,13 @@ fun isValidId(id: Long): Boolean {
     val idStr = id.toString()
     var i = idStr.length / 2
     while (i > 0 && valid) {
-        if (idStr.length % i != 0) {
-            i -= 1
-            continue
+        if (idStr.length % i == 0) {
+            val subStr = idStr.substring(0, i)
+            val testStr = subStr.repeat(idStr.length / i)
+            if (testStr == idStr) {
+                valid = false
+            }
         }
-        val subStr = idStr.substring(0, i)
-        val testStr = subStr.repeat(idStr.length / i)
-        if (testStr == idStr) {
-            valid = false
-        }
-
         i -= 1
     }
 
